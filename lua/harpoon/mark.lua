@@ -247,8 +247,6 @@ end
 
 -- this runs on every buf leave, which makes me think that it's the problem
 function M.store_offset()
-    print('store offset')
-    local start = vim.loop.now()
     log.trace("store_offset()")
     local ok, res = pcall(function()
         local marks = harpoon.get_mark_config().marks
@@ -269,8 +267,6 @@ function M.store_offset()
         marks[idx].row = cursor_pos[1]
         marks[idx].col = cursor_pos[2]
     end)
-
-    print("store offset took: ", (vim.loop.now() - start) / 1000)
 
     if not ok then
         log.warn("store_offset(): Could not store offset:", res)

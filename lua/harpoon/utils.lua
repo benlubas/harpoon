@@ -37,11 +37,11 @@ function M.normalize_path(item)
 end
 
 function M.get_os_command_output(cmd, cwd)
-  local start = vim.loop.now()
   if type(cmd) ~= "table" then
     print("Harpoon: [get_os_command_output]: cmd has to be a table")
     return {}
   end
+
   local command = table.remove(cmd, 1)
   local stderr = {}
   local stdout, ret = Job:new({
@@ -52,8 +52,6 @@ function M.get_os_command_output(cmd, cwd)
       table.insert(stderr, data)
     end,
   }):sync()
-
-  print("cmd time:", (vim.loop.now() - start) / 1000)
 
   return stdout, ret, stderr
 end
