@@ -245,6 +245,7 @@ function M.remove_empty_tail(_emit_on_changed)
     end
 end
 
+-- this runs on every buf leave, which makes me think that it's the problem
 function M.store_offset()
     log.trace("store_offset()")
     local ok, res = pcall(function()

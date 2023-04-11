@@ -209,7 +209,7 @@ function M.setup(config)
             ["enter_on_sendcmd"] = false,
             ["tmux_autoclose_windows"] = false,
             ["excluded_filetypes"] = { "harpoon" },
-            ["mark_branch"] = false,
+            ["mark_branch"] = true,
         },
     }, expand_dir(c_config), expand_dir(u_config), expand_dir(config))
 
@@ -283,7 +283,7 @@ end
 
 function M.get_mark_config()
     log.trace("get_mark_config()")
-    return ensure_correct_config(HarpoonConfig).projects[mark_config_key()].mark
+    return HarpoonConfig.projects[mark_config_key()].mark
 end
 
 function M.get_menu_config()
