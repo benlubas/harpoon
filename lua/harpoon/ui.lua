@@ -70,24 +70,42 @@ local function get_menu_items()
     return indices
 end
 
-function M.toggle_quick_menu()
+function M.toggle_quick_menu(current_file)
     log.trace("toggle_quick_menu()")
     if Harpoon_win_id ~= nil and vim.api.nvim_win_is_valid(Harpoon_win_id) then
         close_menu()
         return
     end
 
+    local curr_file = utils.normalize_path(vim.api.nvim_buf_get_name(0))
+    vim.cmd(
+        string.format(
+            "autocmd Filetype harpoon "
+                .. "let path = '%s' | call clearmatches() | "
+                -- move the cursor to the line containing the current filename
+                .. "call search('\\V'.path.'\\$') | "
+                -- add a hl group to that line
+                .. "call matchadd('HarpoonCurrentFile', '\\V'.path.'\\$')",
+            curr_file:gsub("\\", "\\\\")
+        )
+    )
+
     local win_info = create_window()
     local contents = {}
     local global_config = harpoon.get_global_settings()
+    local current_line = nil
 
     Harpoon_win_id = win_info.win_id
     Harpoon_bufh = win_info.bufnr
 
+    local current_path = utils.normalize_path(current_file)
     for idx = 1, Marked.get_length() do
         local file = Marked.get_marked_file_name(idx)
         if file == "" then
             file = "(empty)"
+        end
+        if file == current_path then
+            current_line = idx
         end
         contents[idx] = string.format("%s", file)
     end
@@ -98,6 +116,11 @@ function M.toggle_quick_menu()
     vim.api.nvim_buf_set_option(Harpoon_bufh, "filetype", "harpoon")
     vim.api.nvim_buf_set_option(Harpoon_bufh, "buftype", "acwrite")
     vim.api.nvim_buf_set_option(Harpoon_bufh, "bufhidden", "delete")
+    vim.api.nvim_buf_clear_namespace(Harpoon_bufh, utils.namespace_id(), 0, -1)
+    if current_line ~= nil then
+        vim.api.nvim_win_set_cursor(Harpoon_win_id, { current_line, 0 })
+        vim.api.nvim_buf_add_highlight(Harpoon_bufh, utils.namespace_id(), "Label", current_line - 1, 0, -1)
+    end
     vim.api.nvim_buf_set_keymap(
         Harpoon_bufh,
         "n",
@@ -177,6 +200,8 @@ function M.nav_file(id)
     local buf_id = get_or_create_buffer(filename)
     local set_row = not vim.api.nvim_buf_is_loaded(buf_id)
 
+    local old_bufnr = vim.api.nvim_get_current_buf()
+
     vim.api.nvim_set_current_buf(buf_id)
     vim.api.nvim_buf_set_option(buf_id, "buflisted", true)
     if set_row and mark.row and mark.col then
@@ -188,6 +213,17 @@ function M.nav_file(id)
                 mark.col
             )
         )
+    end
+
+    local old_bufinfo = vim.fn.getbufinfo(old_bufnr)
+    if type(old_bufinfo) == "table" and #old_bufinfo >= 1 then
+        old_bufinfo = old_bufinfo[1]
+        local no_name = old_bufinfo.name == ""
+        local one_line = old_bufinfo.linecount == 1
+        local unchanged = old_bufinfo.changed == 0
+        if no_name and one_line and unchanged then
+            vim.api.nvim_buf_delete(old_bufnr, {})
+        end
     end
 end
 
