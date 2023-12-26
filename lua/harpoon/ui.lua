@@ -48,7 +48,7 @@ local function create_window()
     vim.api.nvim_win_set_option(
         win.border.win_id,
         "winhl",
-        "Normal:HarpoonBorder"
+        "Normal:HarpoonBorder,FloatTitle:HarpoonTitle"
     )
 
     return {
