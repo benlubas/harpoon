@@ -183,6 +183,8 @@ end
 function M.setup(config)
     log.trace("setup(): Setting up...")
 
+    vim.api.nvim_set_hl(0, "HarpoonCurrent", { default = true, link = "Normal" })
+
     if not config then
         config = {}
     end

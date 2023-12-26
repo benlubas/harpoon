@@ -31,25 +31,29 @@ local function create_window()
     local width = config.width or 60
     local height = config.height or 10
     local borderchars = config.borderchars
-        or { "─", "│", "─", "│", "╭", "╮", "╯", "╰" }
+        or { "╭", "─", "╮", "│", "╯", "─", "╰", "│" }
     local bufnr = vim.api.nvim_create_buf(false, false)
 
-    local Harpoon_win_id, win = popup.create(bufnr, {
-        title = "Harpoon",
-        highlight = "HarpoonWindow",
-        line = math.floor(((vim.o.lines - height) / 2) - 1),
+    local Harpoon_win_id = vim.api.nvim_open_win(bufnr, true, {
+        title = " Harpoon ",
+        title_pos = "center",
+        relative = "editor",
+        style = "minimal",
+        width = width,
+        border = borderchars,
+        height = height,
+        row = math.floor((vim.o.lines - height) / 3),
         col = math.floor((vim.o.columns - width) / 2),
-        minwidth = width,
-        minheight = height,
-        borderchars = borderchars,
-        wrap = true,
     })
 
     vim.api.nvim_win_set_option(
-        win.border.win_id,
+        Harpoon_win_id,
         "winhl",
-        "Normal:HarpoonBorder,FloatTitle:HarpoonTitle"
+        "Normal:HarpoonWindow,FloatBorder:HarpoonBorder,FloatTitle:HarpoonTitle"
     )
+
+    vim.api.nvim_win_set_option(Harpoon_win_id, "number", true)
+    vim.api.nvim_win_set_option(Harpoon_win_id, "wrap", true)
 
     return {
         bufnr = bufnr,
@@ -107,7 +111,7 @@ function M.toggle_quick_menu(current_file)
     vim.api.nvim_buf_clear_namespace(Harpoon_bufh, utils.namespace_id(), 0, -1)
     if current_line ~= nil then
         vim.api.nvim_win_set_cursor(Harpoon_win_id, { current_line, 0 })
-        vim.api.nvim_buf_add_highlight(Harpoon_bufh, utils.namespace_id(), "Label", current_line - 1, 0, -1)
+        vim.api.nvim_buf_add_highlight(Harpoon_bufh, utils.namespace_id(), "HarpoonCurrent", current_line - 1, 0, -1)
     end
     vim.api.nvim_buf_set_keymap(
         Harpoon_bufh,
