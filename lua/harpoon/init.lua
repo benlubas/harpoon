@@ -112,6 +112,10 @@ local function ensure_correct_config(config)
     log.trace("_ensure_correct_config()")
     local projects = config.projects
     local mark_key = mark_config_key(config.global_settings)
+    if mark_key == nil then
+        print("[Harpoon] Something with git went horribly wrong")
+        return config
+    end
     if projects[mark_key] == nil then
         log.debug("ensure_correct_config(): No config found for:", mark_key)
         projects[mark_key] = {

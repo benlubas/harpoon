@@ -24,7 +24,7 @@ function M.branch_key()
     "--show-current",
   })[1]
 
-  if branch then
+  if branch ~= nil then
     M.cached_branch_key = vim.loop.cwd() .. "-" .. branch
   else
     M.cached_branch_key = M.project_key()
