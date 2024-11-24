@@ -175,7 +175,8 @@ function M.save()
     M.refresh_projects_b4update()
 
     log.trace("save(): Saving cache config to", cache_config)
-    Path:new(cache_config):write(vim.fn.json_encode(HarpoonConfig), "w")
+    local p = { projects = HarpoonConfig.projects }
+    Path:new(cache_config):write(vim.fn.json_encode(p), "w")
 end
 
 local function read_config(local_config)

@@ -26,7 +26,7 @@ end
 local function create_window()
     log.trace("_create_window()")
     local config = harpoon.get_menu_config()
-    local width = config.width or 60
+    local width = (type(config.width) == "function" and config.width()) or config.width or 60
     local height = config.height or 10
     local borderchars = config.borderchars
         or { "─", "│", "─", "│", "╭", "╮", "╯", "╰" }
